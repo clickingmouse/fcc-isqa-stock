@@ -43,13 +43,14 @@ module.exports = function (app) {
     console.log("received new query")
     console.log(req.query)
     var stock = req.query.stock
-    console.log(typeof(req.query.like))
-    console.log(req.query.like)
-    console.log(typeof(stock))
+    //console.log(typeof(req.query.like))
+    //console.log(req.query.like)
+    //console.log(typeof(stock))
     ///////////////////////////////////////////////////////
     // setting up
-    //console.log(req.connection.remoteAddress)
+    console.log(req.connection.remoteAddress)
     console.log(req.ip)
+    var ipAddr = req.ip
     var stockInput
     var likeOption = false
     var stockCount = 1
@@ -66,30 +67,20 @@ module.exports = function (app) {
 */
     
     async function getStockLikes(stockTicker) {
-    console.log("counting likes for "+ stockTicker)
+    //console.log("counting likes for "+ stockTicker)
       const stockdata = await Stocks.findOneAndUpdate({stock:stockTicker},{stock:stockTicker},{new:true, upsert:true})
      //const stockLikeData = await stockdata.json()
-     console.log(">>>"+stockTicker)
-     console.log(stockdata.likes.length)
+     //console.log(">>>"+stockTicker)
+     //console.log(stockdata.likes.length)
       return (stockdata.likes.length)
     }
 
     
     function likeStock(stockTicker, ipAddr) {
-    console.log("++++++++")
-    //look for instance and return none 
-      ///findoneand update option upserts
-      /*
-         Stocks.findOne({stock:stockTicker, likes:ipAddr},(err,model)=>{
-    if (err){console.log(err)}
-      console.log("found")
-      console.log(model)
-    
-    })
-    */
+    //console.log("++++++++")
     Stocks.findOneAndUpdate({stock:stockTicker},{$addToSet:{likes:ipAddr}},{new:true, upsert:true},(err,model)=>{
     if (err){console.log(err)}
-      console.log("upserting")
+      //console.log("upserting")
       console.log(model)
     
     })
@@ -109,8 +100,8 @@ module.exports = function (app) {
     })  
      var stockData = await res.json()
      
-     console.log(stockData.quote.latestPrice)
-      console.log(typeof(stockData.quote.latestPrice))
+     //console.log(stockData.quote.latestPrice)
+      //console.log(typeof(stockData.quote.latestPrice))
       return (stockData.quote.latestPrice)
   //  return (myJson.quote.latestPrice)
     }
@@ -121,54 +112,53 @@ module.exports = function (app) {
     
     //tests
     //getStockPrice("AAPL")
-    console.log("::")
-    console.log("Price is -->>" +getStockPrice("AAPL"))
+    //console.log("::")
+    //console.log("Price is -->>" +getStockPrice("AAPL"))
     //likeStock("TICKER","128.1.1.1")
     //likeStock("TICKER","128.1.1.2")
     //likeStock("TEST","129.0.1.2")
-    console.log("likes is -->"+ getStockLikes("TEST"))
-    getStockLikes("ABC")
+    //console.log("likes is -->"+ getStockLikes("TEST"))
+    //getStockLikes("ABC")
     
  //////////////////////////////////////////////////////////////////////////////////////////////////////////   
     if(req.query.like == 'true'){
-    console.log("like selected")
+    //console.log("like selected")
       likeOption = true
       
     } 
     
-      // check if like one or two stocks
-    
-    
+      // check if  one or two stocks  
     if (typeof(req.query.stock) === 'string'){
-    console.log("uno")
+    //console.log("uno")
     stockCount = 1 
       stockInput = req.query.stock
     } else {
     stockInput = req.query.stock
-      console.log("not string")
-      console.log(stockInput)
+    //  console.log("not string")
+    //  console.log(stockInput)
       stockCount = 2
     }
-// stockOption
- //   var likeOption = false
- //   var stockCount = 1
+
     
-    async function outputData ( stockInput, stockCount, likeOption){
-      console.log(stockInput)
-    console.log(stockInput +"||"+ stockCount +"||"+likeOption)
+    async function outputData ( stockInput, stockCount, likeOption, ipAddr){
+    //  console.log(stockInput)
+    //console.log(stockInput +"||"+ stockCount +"||"+likeOption)
       
      //var something = await getStockPrice(stockInput)
      
     if (stockCount == 1 && likeOption === false ){      
     var returnObj = {
-      "stock":stockInput,
+      "stock":stockInput.toUpperCase(),
       "price":await getStockPrice(stockInput),
-//      "likes":await getStockLikes(stockInput)
+      "likes":await getStockLikes(stockInput)
     }
     }
 
       
     if (stockCount == 1 && likeOption === true ){
+      // add like
+      likeStock(stockInput, ipAddr)
+      
      var returnObj = {
       "stock":stockInput,
       "price":await getStockPrice(stockInput),
@@ -222,7 +212,7 @@ module.exports = function (app) {
       res.json({"stockData":returnObj})
     }
     
-outputData(stockInput, stockCount, likeOption )
+outputData(stockInput, stockCount, likeOption, ipAddr )
     
     // single get stock likes
     //

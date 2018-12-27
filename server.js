@@ -10,15 +10,14 @@ var fccTestingRoutes  = require('./routes/fcctesting.js');
 var runner            = require('./test-runner');
 
 
-var helmet = require('helmet')
 var app = express();
 
-
+var helmet = require('helmet')
 app.use(helmet.contentSecurityPolicy({
   directives:{
     defaultSrc:["'self'"], 
-    scriptSrc: ["'self'"],
-    styleSrc: ["'self'"]
+ //   scriptSrc: ["'self'"],
+    styleSrc: ["'self'", "'unsafe-inline'"]
   }
 
 }));
@@ -39,6 +38,8 @@ app.set('trust proxy',true);
 //Index page (static HTML)
 app.route('/')
   .get(function (req, res) {
+  //console.log(". . .")
+  //console.log(req.params)
     res.sendFile(process.cwd() + '/views/index.html');
   });
 
@@ -54,7 +55,7 @@ app.use(function(req, res, next) {
     .type('text')
     .send('Not Found');
 });
-
+ 
 //Start our server and tests!
 app.listen(process.env.PORT || 3000, function () {
   console.log("Listening on port " + process.env.PORT);
