@@ -1,0 +1,28 @@
+1) helmet
+
+2) get user query
+
+received new query
+{ stock: 'goog', like: 'true' }
+
+received new query
+{ stock: [ 'goog', 'msft' ], like: 'true' }
+
+
+3) parse query
+
+1) 1 stock with no like ===> get stock price only
+2) 1 stock with like ===> add like to stock count
+3) 2 stocks with no likes ===>
+40 2 stocks with like ===>
+
+
+
+4) AJAX calls
+
+5) database/model creation
+  -id
+  -stock
+  -ip
+  -like
+  
